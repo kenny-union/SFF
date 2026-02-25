@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Feedback Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <div class="school-badge">✏️ Academic Feedback</div>
+    <h1>Share Your <span>Experience</span></h1>
+    <p class="subtitle">Help us make learning better — your voice matters!</p>
+  </header>
+
+  <div class="card">
+
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Thank you! 🎉</div>
+      <p class="success-msg">Your feedback has been submitted successfully. We really appreciate you taking the time to share your thoughts!</p>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
+        <button class="btn-reset" onclick="resetForm()">Submit another response</button>
+        <a href="dashboard.html" style="text-decoration: none;">
+          <button class="btn-reset" style="background: var(--teal); color: white; cursor: pointer;">View Dashboard 📊</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Form Content -->
+    <div class="card-inner" id="formContent">
+      
+      <!-- Progress Bar -->
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <form id="feedbackForm" novalidate>
+
+        <!-- ═════════════════════════════════════════ -->
+        <!-- SECTION 1: STUDENT INFORMATION -->
+        <!-- ═════════════════════════════════════════ -->
+        <p class="section-title">👤 Student Information</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="name">Full Name <span style="color: var(--red)">*</span></label>
+            <div class="input-wrap">
+              <input type="text" id="name" placeholder="Your full name" required />
+              <span class="input-icon">✍️</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="studentId">Student ID</label>
+            <div class="input-wrap">
+              <input type="text" id="studentId" placeholder="Optional" />
+              <span class="input-icon">#</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="email">Email</label>
+            <div class="input-wrap">
+              <input type="email" id="email" placeholder="your.email@school.com" />
+              <span class="input-icon">✉️</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="grade">Grade / Year <span style="color: var(--red)">*</span></label>
+            <select id="grade" required>
+              <option value="">Select grade…</option>
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+              <option value="11">Grade 11</option>
+              <option value="12">Grade 12</option>
+              <option value="1st">1st Year</option>
+              <option value="2nd">2nd Year</option>
+              <option value="3rd">3rd Year</option>
+              <option value="4th">4th Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="subject">Subject / Course <span style="color: var(--red)">*</span></label>
+          <select id="subject" required>
+            <option value="">Select subject…</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="English">English</option>
+            <option value="Science">Science</option>
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
+            <option value="Physical Education">Physical Education</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Arts">Arts</option>
+          </select>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- ═════════════════════════════════════════ -->
+        <!-- SECTION 2: RATINGS -->
+        <!-- ═════════════════════════════════════════ -->
+        <p class="section-title">⭐ Rate Your Experience</p>
+
+        <div class="stars-group">
+          <label>Overall Class Experience <span style="color: var(--red)">*</span></label>
+          <div class="stars" id="overallStars">
+            <input type="radio" id="overall1" name="overall" value="1" />
+            <label for="overall1">⭐</label>
+            <input type="radio" id="overall2" name="overall" value="2" />
+            <label for="overall2">⭐</label>
+            <input type="radio" id="overall3" name="overall" value="3" />
+            <label for="overall3">⭐</label>
+            <input type="radio" id="overall4" name="overall" value="4" />
+            <label for="overall4">⭐</label>
+            <input type="radio" id="overall5" name="overall" value="5" />
+            <label for="overall5">⭐</label>
+          </div>
+        </div>
+
+        <div class="stars-group">
+          <label>Teaching Quality</label>
+          <div class="stars">
+            <input type="radio" id="teaching1" name="teaching" value="1" />
+            <label for="teaching1">⭐</label>
+            <input type="radio" id="teaching2" name="teaching" value="2" />
+            <label for="teaching2">⭐</label>
+            <input type="radio" id="teaching3" name="teaching" value="3" />
+            <label for="teaching3">⭐</label>
+            <input type="radio" id="teaching4" name="teaching" value="4" />
+            <label for="teaching4">⭐</label>
+            <input type="radio" id="teaching5" name="teaching" value="5" />
+            <label for="teaching5">⭐</label>
+          </div>
+        </div>
+
+        <div class="stars-group">
+          <label>Course Materials & Resources</label>
+          <div class="stars">
+            <input type="radio" id="materials1" name="materials" value="1" />
+            <label for="materials1">⭐</label>
+            <input type="radio" id="materials2" name="materials" value="2" />
+            <label for="materials2">⭐</label>
+            <input type="radio" id="materials3" name="materials" value="3" />
+            <label for="materials3">⭐</label>
+            <input type="radio" id="materials4" name="materials" value="4" />
+            <label for="materials4">⭐</label>
+            <input type="radio" id="materials5" name="materials" value="5" />
+            <label for="materials5">⭐</label>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- ═════════════════════════════════════════ -->
+        <!-- SECTION 3: MOOD SELECTOR -->
+        <!-- ═════════════════════════════════════════ -->
+        <p class="section-title">😊 How do you feel in class?</p>
+        <div class="field">
+          <div class="mood-row">
+            <input type="radio" id="mood-happy" name="mood" value="happy" class="mood-option" />
+            <label for="mood-happy" class="mood-label">
+              <span class="emoji">😄</span>
+              Happy
+            </label>
+
+            <input type="radio" id="mood-neutral" name="mood" value="neutral" class="mood-option" />
+            <label for="mood-neutral" class="mood-label">
+              <span class="emoji">😐</span>
+              Neutral
+            </label>
+
+            <input type="radio" id="mood-sad" name="mood" value="sad" class="mood-option" />
+            <label for="mood-sad" class="mood-label">
+              <span class="emoji">😔</span>
+              Sad
+            </label>
+
+            <input type="radio" id="mood-excited" name="mood" value="excited" class="mood-option" />
+            <label for="mood-excited" class="mood-label">
+              <span class="emoji">🤩</span>
+              Excited
+            </label>
+
+            <input type="radio" id="mood-stressed" name="mood" value="stressed" class="mood-option" />
+            <label for="mood-stressed" class="mood-label">
+              <span class="emoji">😰</span>
+              Stressed
+            </label>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- ═════════════════════════════════════════ -->
+        <!-- SECTION 4: CHECKBOXES - WHAT DID YOU ENJOY -->
+        <!-- ═════════════════════════════════════════ -->
+        <p class="section-title">✅ What did you enjoy?</p>
+        <div class="field">
+          <div class="checkbox-list">
+            <div class="checkbox-item">
+              <input type="checkbox" id="enjoyed-teacher" name="enjoyed" value="Excellent Teaching" />
+              <label for="enjoyed-teacher" class="checkbox-box">
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L4 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </label>
+              <span>Excellent teaching</span>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="enjoyed-peers" name="enjoyed" value="Great Classmates" />
+              <label for="enjoyed-peers" class="checkbox-box">
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L4 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </label>
+              <span>Great classmates & teamwork</span>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="enjoyed-resources" name="enjoyed" value="Good Resources" />
+              <label for="enjoyed-resources" class="checkbox-box">
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L4 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </label>
+              <span>Good course materials & resources</span>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="enjoyed-engagement" name="enjoyed" value="Interactive Learning" />
+              <label for="enjoyed-engagement" class="checkbox-box">
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L4 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </label>
+              <span>Interactive & engaging lessons</span>
+            </div>
+
+            <div class="checkbox-item">
+              <input type="checkbox" id="enjoyed-feedback" name="enjoyed" value="Constructive Feedback" />
+              <label for="enjoyed-feedback" class="checkbox-box">
+                <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 5L4 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </label>
+              <span>Constructive feedback from instructor</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- ═════════════════════════════════════════ -->
+        <!-- SECTION 5: TEXT FEEDBACK -->
+        <!-- ═════════════════════════════════════════ -->
+        <p class="section-title">💬 Your Thoughts</p>
+
+        <div class="field">
+          <label for="liked">What did you like most? <span style="color: var(--red)">*</span></label>
+          <textarea id="liked" placeholder="Share what you enjoyed about the class or course…" required></textarea>
+          <div class="field-meta">
+            <span class="char-count"><span id="likedCount">0</span>/500</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="improve">What could be improved?</label>
+          <textarea id="improve" placeholder="Suggestions for improvement (e.g., pace, materials, activities)…"></textarea>
+          <div class="field-meta">
+            <span class="char-count"><span id="improveCount">0</span>/500</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="comments">Additional Comments</label>
+          <textarea id="comments" placeholder="Any other feedback or thoughts you'd like to share…"></textarea>
+          <div class="field-meta">
+            <span class="char-count"><span id="commentsCount">0</span>/500</span>
+          </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════ -->
+        <!-- SUBMIT SECTION -->
+        <!-- ═════════════════════════════════════════ -->
+        <div class="submit-row">
+          <p class="required-note">
+            <span>*</span> Required fields
+          </p>
+          <button type="submit" class="btn-submit">
+            <span>Submit Feedback</span> <span>🚀</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Application Logic -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

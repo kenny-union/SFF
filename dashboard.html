@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback Dashboard - Student Feedback System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --cream: #fdf8ef;
+      --paper: #fff9f0;
+      --warm: #f5ede0;
+      --amber: #e8850a;
+      --amber-light: #f5a623;
+      --teal: #2a8a8a;
+      --teal-light: #3aa8a8;
+      --text: #2d2416;
+      --muted: #8a7560;
+      --line: #e8dac8;
+      --red: #e05252;
+      --green: #3a9b6f;
+    }
+
+    body {
+      background: var(--cream);
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(232,133,10,0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(42,138,138,0.06) 0%, transparent 50%);
+      min-height: 100vh;
+      font-family: 'Nunito', sans-serif;
+      padding: 2rem 1rem;
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeDown .6s ease both;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      background: var(--teal);
+      color: #fff;
+      padding: .45rem 1.3rem;
+      border-radius: 100px;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 16px rgba(42,138,138,0.3);
+    }
+
+    h1 {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--text);
+      margin-bottom: .5rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: .95rem;
+      font-weight: 300;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: .75rem 1rem;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: .9rem;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42,138,138,0.12);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: .6rem 1.2rem;
+      border: 1.5px solid var(--line);
+      background: var(--cream);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--muted);
+      transition: all .2s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .filter-btn.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .btn-export {
+      padding: .6rem 1.2rem;
+      background: linear-gradient(135deg, var(--amber), var(--amber-light));
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-export:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(232,133,10,0.35);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--paper);
+      padding: 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 8px rgba(45,36,22,0.08);
+    }
+
+    .stat-label {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    .feedback-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .feedback-card {
+      background: var(--paper);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 8px rgba(45,36,22,0.08);
+      transition: all .2s;
+    }
+
+    .feedback-card:hover {
+      box-shadow: 0 8px 24px rgba(45,36,22,0.12);
+      transform: translateY(-2px);
+    }
+
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .feedback-student {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .student-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .3rem;
+    }
+
+    .student-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: .85rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+
+    .feedback-timestamp {
+      font-size: .8rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .rating-badge {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      background: rgba(232,133,10,0.1);
+      padding: .5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      color: var(--amber);
+    }
+
+    .mood-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      background: rgba(42,138,138,0.1);
+      padding: .4rem .8rem;
+      border-radius: 6px;
+      font-size: .8rem;
+      color: var(--teal);
+    }
+
+    .feedback-content {
+      margin-bottom: 1rem;
+    }
+
+    .feedback-section {
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      color: var(--muted);
+      margin-bottom: .3rem;
+    }
+
+    .section-content {
+      font-size: .9rem;
+      color: var(--text);
+      line-height: 1.6;
+      background: rgba(232,218,200,0.3);
+      padding: .75rem;
+      border-radius: 8px;
+      border-left: 3px solid var(--teal);
+    }
+
+    .enjoyed-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-top: .5rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      padding: .3rem .7rem;
+      border-radius: 6px;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    .ratings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: .75rem;
+      margin-bottom: 1rem;
+    }
+
+    .rating-item {
+      padding: .75rem;
+      background: rgba(232,133,10,0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(232,133,10,0.2);
+    }
+
+    .rating-item-label {
+      font-size: .75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      margin-bottom: .3rem;
+    }
+
+    .rating-stars {
+      font-size: 1.2rem;
+      color: var(--amber);
+      letter-spacing: .1rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--line);
+      border-top: 4px solid var(--teal);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .feedback-header {
+        flex-direction: column;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Admin Login Modal */
+    .login-modal {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .login-modal.hidden {
+      display: none;
+    }
+
+    .login-box {
+      background: var(--paper);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 300px;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .login-box p {
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .login-box button:hover {
+      background: var(--teal-light);
+    }
+
+    .login-box code {
+      background: var(--cream);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--text);
+    }
+
+    /* Delete Button */
+    .btn-delete {
+      padding: 0.4rem 0.8rem;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: none;
+    }
+
+    .btn-delete:hover {
+      background: #d04040;
+      transform: scale(1.05);
+    }
+
+    .btn-delete.show {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Admin Login Modal -->
+    <div id="loginModal" class="login-modal">
+      <div class="login-box">
+        <h2>🔐 Admin Access</h2>
+        <p>Enter admin password to manage feedback</p>
+        <input type="password" id="adminPassword" placeholder="Admin password" />
+        <button onclick="adminLogin()">Login</button>
+        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 1rem;">Default password: <code>admin123</code></p>
+      </div>
+    </div>
+    
+    <header>
+      <div class="header-badge">📊 Dashboard</div>
+      <h1>Feedback Analytics</h1>
+      <p class="subtitle">View and analyze all student feedback submissions</p>
+      <button id="adminToggle" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--teal); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🔓 Admin Login</button>
+    </header>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by student name..." />
+      </div>
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="subject">By Subject</button>
+        <button class="filter-btn" data-filter="grade">By Grade</button>
+        <button class="filter-btn" data-filter="rating">By Rating</button>
+      </div>
+      <button class="btn-export" onclick="exportToCSV()">📥 Export CSV</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Submissions</div>
+        <div class="stat-value" id="totalSubmissions">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Average Rating</div>
+        <div class="stat-value" id="avgRating">0.0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Response Rate</div>
+        <div class="stat-value" id="respRate">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Most Common Mood</div>
+        <div class="stat-value" id="commonMood">—</div>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading feedback data...</p>
+    </div>
+
+    <div class="feedback-list" id="feedbackList"></div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-icon">📋</div>
+      <h2>No feedback yet</h2>
+      <p>Feedback submissions will appear here once students submit the form.</p>
+    </div>
+
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Dashboard Logic -->
+  <script>
+    const SUPABASE_URL = 'https://ubrjrofmafyuclrqifxa.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicmpyb2ZtYWZ5dWNscnFpZnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzA3OTYsImV4cCI6MjA4NzYwNjc5Nn0.R4Alsa_so0ITQpqv5eHYWCKdeU71MBYDsu_nvr3G6BQ';
+
+    console.log('📊 Dashboard initializing...');
+
+    // Initialize Supabase in global state
+    if (!window.appState) {
+      window.appState = {};
+    }
+
+    let allFeedback = [];
+    let filteredFeedback = [];
+
+    // Initialize Supabase
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      try {
+        window.appState.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase initialized');
+      } catch (err) {
+        console.error('❌ Supabase init error:', err);
+      }
+    } else {
+      console.error('❌ Supabase SDK not loaded');
+    }
+
+    // Fetch feedback on load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('✅ Page loaded');
+      fetchFeedback();
+    });
+
+    // ─── FETCH FEEDBACK ───
+    async function fetchFeedback() {
+      try {
+        console.log('🔄 Fetching feedback...');
+
+        if (!window.appState.supabase) {
+          throw new Error('Supabase not initialized');
+        }
+
+        const { data, error } = await window.appState.supabase
+          .from('student_feedback')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('❌ Fetch error:', error);
+          
+          let errorMsg = '❌ Error loading feedback';
+          if (error.code === 'PGRST116') {
+            errorMsg = '❌ Table not found. Create it in Supabase using schema.sql';
+          } else if (error.message?.includes('policy')) {
+            errorMsg = '❌ Permission denied. Check RLS policies.';
+          } else {
+            errorMsg = '❌ ' + (error.message || JSON.stringify(error));
+          }
+          
+          document.getElementById('loading').innerHTML = `<p style="color: var(--red);">${errorMsg}</p><p style="font-size: 0.8rem; margin-top: 1rem;">Check console (F12) for details</p>`;
+          return;
+        }
+
+        allFeedback = data || [];
+        filteredFeedback = [...allFeedback];
+        console.log(`✅ Loaded ${allFeedback.length} feedback records`);
+
+        document.getElementById('loading').style.display = 'none';
+        updateStats();
+        renderFeedback();
+
+        if (allFeedback.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+        }
+
+      } catch (err) {
+        console.error('❌ Fatal error:', err);
+        document.getElementById('loading').innerHTML = `<p style="color: var(--red);">❌ ${err.message}</p><p style="font-size: 0.8rem; margin-top: 1rem;">Check console (F12)</p>`;
+      }
+    }
+
+    // ─── UPDATE STATISTICS ───
+    function updateStats() {
+      document.getElementById('totalSubmissions').textContent = allFeedback.length;
+
+      if (allFeedback.length > 0) {
+        const avgRating = (allFeedback.reduce((sum, fb) => sum + fb.overall_rating, 0) / allFeedback.length).toFixed(1);
+        document.getElementById('avgRating').textContent = avgRating;
+
+        // Count moods
+        const moodCounts = {};
+        allFeedback.forEach(fb => {
+          if (fb.mood) {
+            moodCounts[fb.mood] = (moodCounts[fb.mood] || 0) + 1;
+          }
+        });
+        const mostCommonMood = Object.keys(moodCounts).length > 0
+          ? Object.keys(moodCounts).reduce((a, b) => moodCounts[a] > moodCounts[b] ? a : b)
+          : '—';
+        
+        const moodEmojis = {
+          'happy': '😄',
+          'excited': '🤩',
+          'neutral': '😐',
+          'sad': '😔',
+          'stressed': '😰'
+        };
+        document.getElementById('commonMood').textContent = moodEmojis[mostCommonMood] || mostCommonMood;
+      }
+    }
+
+    // ─── RENDER FEEDBACK ───
+    function renderFeedback() {
+      const list = document.getElementById('feedbackList');
+      
+      if (filteredFeedback.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No feedback matches your search.</p></div>';
+        return;
+      }
+
+      list.innerHTML = filteredFeedback.map(fb => {
+        const date = new Date(fb.created_at);
+        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+
+        const moodEmojis = {
+          'happy': '😄',
+          'excited': '🤩',
+          'neutral': '😐',
+          'sad': '😔',
+          'stressed': '😰'
+        };
+
+        const stars = '⭐'.repeat(fb.overall_rating);
+
+        let enjoyedHTML = '';
+        if (fb.enjoyed && fb.enjoyed.length > 0) {
+          enjoyedHTML = '<div class="enjoyed-list">' +
+            fb.enjoyed.map(item => `<span class="tag">${item}</span>`).join('') +
+            '</div>';
+        }
+
+        let ratingsHTML = '<div class="ratings-grid">';
+        ratingsHTML += `<div class="rating-item">
+          <div class="rating-item-label">Overall Experience</div>
+          <div class="rating-stars">${'⭐'.repeat(fb.overall_rating)}</div>
+        </div>`;
+        
+        if (fb.teaching_rating) {
+          ratingsHTML += `<div class="rating-item">
+            <div class="rating-item-label">Teaching Quality</div>
+            <div class="rating-stars">${'⭐'.repeat(fb.teaching_rating)}</div>
+          </div>`;
+        }
+        
+        if (fb.materials_rating) {
+          ratingsHTML += `<div class="rating-item">
+            <div class="rating-item-label">Course Materials</div>
+            <div class="rating-stars">${'⭐'.repeat(fb.materials_rating)}</div>
+          </div>`;
+        }
+        ratingsHTML += '</div>';
+
+        return `
+          <div class="feedback-card">
+            <div class="feedback-header">
+              <div class="feedback-student">
+                <div class="student-name">${escapeHtml(fb.full_name)}</div>
+                <div class="student-meta">
+                  <div class="meta-item">📚 ${fb.subject}</div>
+                  <div class="meta-item">📍 ${fb.grade}</div>
+                  ${fb.student_id ? `<div class="meta-item">ID: ${escapeHtml(fb.student_id)}</div>` : ''}
+                  ${fb.email ? `<div class="meta-item">✉️ ${escapeHtml(fb.email)}</div>` : ''}
+                </div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                <div class="rating-badge">${stars}</div>
+                ${fb.mood ? `<span class="mood-badge">${moodEmojis[fb.mood] || fb.mood}</span>` : ''}
+                <button class="btn-delete" onclick="deleteFeedback('${fb.id}')">🗑️ Delete</button>
+              </div>
+              <div class="feedback-timestamp">${formattedDate}</div>
+            </div>
+
+            <div class="feedback-content">
+              ${ratingsHTML}
+
+              <div class="feedback-section">
+                <div class="section-label">👍 What they liked most</div>
+                <div class="section-content">${escapeHtml(fb.liked_most)}</div>
+              </div>
+
+              ${fb.improvements ? `<div class="feedback-section">
+                <div class="section-label">💡 Suggestions for improvement</div>
+                <div class="section-content">${escapeHtml(fb.improvements)}</div>
+              </div>` : ''}
+
+              ${fb.additional_comments ? `<div class="feedback-section">
+                <div class="section-label">💬 Additional comments</div>
+                <div class="section-content">${escapeHtml(fb.additional_comments)}</div>
+              </div>` : ''}
+
+              ${fb.enjoyed && fb.enjoyed.length > 0 ? `<div class="feedback-section">
+                <div class="section-label">✅ What they enjoyed</div>
+                ${enjoyedHTML}
+              </div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ─── SEARCH FILTER ───
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const query = e.target.value.toLowerCase();
+      filteredFeedback = allFeedback.filter(fb => 
+        fb.full_name.toLowerCase().includes(query) ||
+        fb.subject.toLowerCase().includes(query) ||
+        fb.liked_most.toLowerCase().includes(query)
+      );
+      renderFeedback();
+    });
+
+    // ─── FILTER BUTTONS ───
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        // TODO: Implement actual filtering
+      });
+    });
+
+    // ─── EXPORT TO CSV ───
+    function exportToCSV() {
+      if (allFeedback.length === 0) {
+        alert('No feedback to export');
+        return;
+      }
+
+      const headers = ['Date', 'Name', 'ID', 'Email', 'Grade', 'Subject', 'Overall Rating', 'Teaching Rating', 'Materials Rating', 'Mood', 'Liked Most', 'Improvements', 'Comments', 'Enjoyed'];
+      
+      const rows = allFeedback.map(fb => [
+        new Date(fb.created_at).toLocaleString(),
+        fb.full_name || '',
+        fb.student_id || '',
+        fb.email || '',
+        fb.grade || '',
+        fb.subject || '',
+        fb.overall_rating || '',
+        fb.teaching_rating || '',
+        fb.materials_rating || '',
+        fb.mood || '',
+        fb.liked_most || '',
+        fb.improvements || '',
+        fb.additional_comments || '',
+        (fb.enjoyed || []).join('; ')
+      ]);
+
+      const csv = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `feedback_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
+
+    // ─── UTILITY: ESCAPE HTML ───
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ─── INITIALIZE ───
+    document.addEventListener('DOMContentLoaded', fetchFeedback);
+
+    // ─── ADMIN LOGIN ───
+    const ADMIN_PASSWORD = 'admin123';
+    let isAdminLoggedIn = false;
+
+    function adminLogin() {
+      const password = document.getElementById('adminPassword').value;
+      if (password === ADMIN_PASSWORD) {
+        isAdminLoggedIn = true;
+        localStorage.setItem('adminLoggedIn', 'true');
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('adminToggle').textContent = '🔒 Admin Logged In';
+        updateDeleteButtons();
+        alert('✅ Admin access granted');
+      } else {
+        alert('❌ Incorrect password');
+      }
+    }
+
+    function logout() {
+      isAdminLoggedIn = false;
+      localStorage.removeItem('adminLoggedIn');
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('adminToggle').textContent = '🔓 Admin Login';
+      updateDeleteButtons();
+    }
+
+    function updateDeleteButtons() {
+      const deleteButtons = document.querySelectorAll('.btn-delete');
+      deleteButtons.forEach(btn => {
+        if (isAdminLoggedIn) {
+          btn.classList.add('show');
+        } else {
+          btn.classList.remove('show');
+        }
+      });
+    }
+
+    async function deleteFeedback(id) {
+      if (!isAdminLoggedIn) {
+        alert('❌ Admin access required');
+        return;
+      }
+
+      const confirmed = confirm('⚠️ Are you sure you want to delete this feedback? This action cannot be undone.');
+      if (!confirmed) return;
+
+      try {
+        console.log('🗑️ Deleting feedback:', id);
+        const { error } = await window.appState.supabase
+          .from('student_feedback')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          console.error('❌ Delete error:', error);
+          alert('❌ Error deleting feedback: ' + error.message);
+          return;
+        }
+
+        console.log('✅ Feedback deleted');
+        alert('✅ Feedback deleted successfully');
+        
+        // Remove from UI
+        allFeedback = allFeedback.filter(fb => fb.id !== id);
+        filteredFeedback = filteredFeedback.filter(fb => fb.id !== id);
+        updateStats();
+        renderFeedback();
+
+      } catch (err) {
+        console.error('❌ Fatal error:', err);
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    // ─── CHECK ADMIN STATUS ON LOAD ───
+    window.addEventListener('load', function() {
+      if (localStorage.getItem('adminLoggedIn') === 'true') {
+        isAdminLoggedIn = true;
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('adminToggle').textContent = '🔒 Admin Logout';
+        document.getElementById('adminToggle').onclick = logout;
+      } else {
+        document.getElementById('adminToggle').onclick = function() {
+          document.getElementById('loginModal').classList.remove('hidden');
+        };
+      }
+    });
+
+    // Allow Enter key to login
+    document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        adminLogin();
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Connection Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Nunito', Arial, sans-serif; background: #f5f5f5; padding: 2rem; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { background: #2a8a8a; color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; }
+    .header h1 { margin-bottom: 0.5rem; }
+    .test-group { background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid #e8850a; }
+    .test-item { margin: 1rem 0; padding: 0.75rem; background: #f9f9f9; border-radius: 4px; }
+    .test-label { font-weight: 600; color: #2d2416; }
+    .test-status { display: inline-block; margin-left: 1rem; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+    .status-ok { background: #3a9b6f; color: white; }
+    .status-error { background: #e05252; color: white; }
+    .status-pending { background: #f5a623; color: white; }
+    .log { background: #1e1e1e; color: #0f0; padding: 1rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; margin: 1rem 0; max-height: 300px; overflow-y: auto; }
+    .log-item { margin: 0.25rem 0; }
+    .log-error { color: #ff6b6b; }
+    .log-success { color: #51cf66; }
+    .log-info { color: #74c0fc; }
+    button { background: #2a8a8a; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 1rem; cursor: pointer; margin: 0.5rem 0; }
+    button:hover { background: #1f6464; }
+    .divider { height: 1px; background: #ddd; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔍 Supabase Connection Test</h1>
+      <p>Verify all components are working correctly</p>
+    </div>
+
+    <div class="test-group">
+      <div class="test-item">
+        <span class="test-label">SDK Loaded</span>
+        <span class="test-status" id="sdkStatus">⏳ Checking...</span>
+      </div>
+      <div class="test-item">
+        <span class="test-label">Supabase Client</span>
+        <span class="test-status" id="clientStatus">⏳ Checking...</span>
+      </div>
+      <div class="test-item">
+        <span class="test-label">Database Connection</span>
+        <span class="test-status" id="dbStatus">⏳ Waiting...</span>
+      </div>
+      <div class="test-item">
+        <span class="test-label">Table Access</span>
+        <span class="test-status" id="tableStatus">⏳ Waiting...</span>
+      </div>
+    </div>
+
+    <button onclick="testRunner.runAllTests()">🧪 Run All Tests</button>
+    <button onclick="testRunner.testInsert()">📝 Test Insert</button>
+    <button onclick="testRunner.clearLog()">🗑️ Clear Log</button>
+
+    <div class="divider"></div>
+
+    <div class="test-group">
+      <h3>📋 Test Log</h3>
+      <div class="log" id="testLog">
+        <div class="log-item log-info">Waiting for tests...</div>
+      </div>
+    </div>
+
+    <div class="test-group">
+      <h3>🔧 Manual Test: Insert Data</h3>
+      <input type="text" id="testName" placeholder="Name" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 4px;">
+      <select id="testGrade" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 4px;">
+        <option value="">Select Grade</option>
+        <option value="9">Grade 9</option>
+        <option value="10">Grade 10</option>
+      </select>
+      <select id="testSubject" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 4px;">
+        <option value="">Select Subject</option>
+        <option value="Math">Math</option>
+        <option value="English">English</option>
+      </select>
+      <textarea id="testFeedback" placeholder="What did you like?" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 4px; height: 100px;"></textarea>
+      <button onclick="testRunner.testInsertData()">📤 Insert Test Record</button>
+    </div>
+
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = 'https://ubrjrofmafyuclrqifxa.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicmpyb2ZtYWZ5dWNscnFpZnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzA3OTYsImV4cCI6MjA4NzYwNjc5Nn0.R4Alsa_so0ITQpqv5eHYWCKdeU71MBYDsu_nvr3G6BQ';
+
+    const testRunner = {
+      supabaseClient: null,
+
+      log(message, type = 'info') {
+        const logEl = document.getElementById('testLog');
+        const item = document.createElement('div');
+        item.className = 'log-item log-' + type;
+        
+        const timestamp = new Date().toLocaleTimeString();
+        item.textContent = `[${timestamp}] ${message}`;
+        
+        logEl.appendChild(item);
+        logEl.scrollTop = logEl.scrollHeight;
+        console.log(message);
+      },
+
+      clearLog() {
+        document.getElementById('testLog').innerHTML = '';
+      },
+
+      setStatus(id, ok, message) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'test-status ' + (ok ? 'status-ok' : 'status-error');
+        el.textContent = ok ? '✅ ' + message : '❌ ' + message;
+      },
+
+      testSDK() {
+        this.log('🔍 Checking SDK...', 'info');
+        if (window.supabase) {
+          this.setStatus('sdkStatus', true, 'Loaded');
+          this.log('✅ Supabase SDK loaded', 'success');
+          return true;
+        } else {
+          this.setStatus('sdkStatus', false, 'Not found');
+          this.log('❌ Supabase SDK not loaded', 'error');
+          return false;
+        }
+      },
+
+      testClient() {
+        this.log('🔍 Checking client...', 'info');
+        try {
+          this.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          this.setStatus('clientStatus', true, 'Created');
+          this.log('✅ Supabase client created', 'success');
+          return true;
+        } catch (err) {
+          this.setStatus('clientStatus', false, 'Error');
+          this.log('❌ Client error: ' + err.message, 'error');
+          return false;
+        }
+      },
+
+      async testDB() {
+        this.log('🔍 Checking database...', 'info');
+        try {
+          if (!this.supabaseClient) {
+            throw new Error('Client not initialized');
+          }
+
+          const { data, error } = await this.supabaseClient.from('student_feedback').select('count');
+          
+          if (error) {
+            this.setStatus('dbStatus', false, 'Error');
+            this.log('❌ DB error: ' + error.message, 'error');
+            
+            if (error.code === 'PGRST116') {
+              this.log('💡 Table does not exist. Run schema.sql in Supabase', 'info');
+            }
+            return false;
+          }
+
+          this.setStatus('dbStatus', true, 'Connected');
+          this.log('✅ Database connected', 'success');
+          return true;
+        } catch (err) {
+          this.setStatus('dbStatus', false, 'Error');
+          this.log('❌ ' + err.message, 'error');
+          return false;
+        }
+      },
+
+      async testTable() {
+        this.log('🔍 Checking table access...', 'info');
+        try {
+          const { data, error } = await this.supabaseClient
+            .from('student_feedback')
+            .select('count')
+            .limit(1);
+
+          if (error) {
+            this.setStatus('tableStatus', false, 'Error');
+            this.log('❌ Table error: ' + error.message, 'error');
+            return false;
+          }
+
+          this.setStatus('tableStatus', true, 'Accessible');
+          this.log('✅ Table is accessible', 'success');
+          return true;
+        } catch (err) {
+          this.setStatus('tableStatus', false, 'Error');
+          this.log('❌ ' + err.message, 'error');
+          return false;
+        }
+      },
+
+      async runAllTests() {
+        this.log('━━━━━ STARTING TESTS ━━━━━', 'info');
+        
+        if (!this.testSDK()) return;
+        if (!this.testClient()) return;
+        if (!await this.testDB()) return;
+        await this.testTable();
+
+        this.log('━━━━━ TESTS COMPLETE ━━━━━', 'info');
+      },
+
+      async testInsert() {
+        this.log('━━━━━ TESTING INSERT ━━━━━', 'info');
+        if (!this.supabaseClient) {
+          if (!this.testSDK() || !this.testClient()) return;
+        }
+        
+        const testData = {
+          full_name: 'Test Student ' + Date.now(),
+          grade: 'Test',
+          subject: 'Test',
+          overall_rating: 5,
+          liked_most: 'Test feedback'
+        };
+
+        this.log('📝 Inserting: ' + testData.full_name, 'info');
+
+        try {
+          const { data, error } = await this.supabaseClient
+            .from('student_feedback')
+            .insert([testData])
+            .select();
+
+          if (error) {
+            this.log('❌ ' + error.message, 'error');
+            return;
+          }
+
+          this.log('✅ Insert successful!', 'success');
+          
+        } catch (err) {
+          this.log('❌ ' + err.message, 'error');
+        }
+      },
+
+      async testInsertData() {
+        const name = document.getElementById('testName').value.trim();
+        const grade = document.getElementById('testGrade').value;
+        const subject = document.getElementById('testSubject').value;
+        const feedback = document.getElementById('testFeedback').value.trim();
+
+        if (!name || !grade || !subject || !feedback) {
+          this.log('❌ Please fill all fields', 'error');
+          return;
+        }
+
+        this.log('🔄 Inserting test data...', 'info');
+
+        try {
+          const { data, error } = await this.supabaseClient
+            .from('student_feedback')
+            .insert([{
+              full_name: name,
+              grade: grade,
+              subject: subject,
+              overall_rating: 5,
+              liked_most: feedback
+            }])
+            .select();
+
+          if (error) {
+            this.log('❌ Insert failed: ' + error.message, 'error');
+            return;
+          }
+
+          this.log('✅ Data inserted successfully!', 'success');
+          this.log('💾 ID: ' + (data[0]?.id || 'N/A'), 'success');
+
+          // Clear form
+          document.getElementById('testName').value = '';
+          document.getElementById('testGrade').value = '';
+          document.getElementById('testSubject').value = '';
+          document.getElementById('testFeedback').value = '';
+
+        } catch (err) {
+          this.log('❌ Error: ' + err.message, 'error');
+        }
+      }
+    };
+
+    // Run on load
+    window.addEventListener('load', function() {
+      console.log('✅ Test page loaded');
+      testRunner.log('📄 Test page loaded. Click "🧪 Run All Tests" to begin', 'info');
+    });
+  </script>
+
+</body>
+</html>
