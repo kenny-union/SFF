@@ -2,10 +2,11 @@
 // STUDENT FEEDBACK FORM - App Logic (CLEAN)
 // ─────────────────────────────────────────────
 
-// ─── BACKEND API CONFIGURATION ───
-// Change this URL when deploying backend to production
-const API_BASE_URL = 'http://localhost:3000/api';
-// For production: 'https://your-deployed-backend.com/api'
+// Get API URL from config.js (auto-detects environment)
+// If config.js fails to load, fallback to localhost
+const API_BASE_URL = typeof window.API_BASE_URL !== 'undefined' 
+  ? window.API_BASE_URL 
+  : 'http://localhost:3000/api';
 
 console.log('🔧 Connecting to backend at:', API_BASE_URL);
 

@@ -559,10 +559,15 @@
 
   </div>
 
+  <!-- API Configuration - Detects environment automatically -->
+  <script src="js/config.js"></script>
+
   <!-- Dashboard Logic -->
   <script>
-    const API_BASE_URL = 'http://localhost:3000/api';
-    // For production: 'https://your-deployed-backend.com/api'
+    // Get API URL from config.js (auto-detects environment)
+    const API_BASE_URL = typeof window.API_BASE_URL !== 'undefined' 
+      ? window.API_BASE_URL 
+      : 'http://localhost:3000/api';
 
     console.log('📊 Dashboard initializing, connecting to:', API_BASE_URL);
 
@@ -897,12 +902,6 @@
 
       } catch (err) {
         console.error('❌ Delete error:', err);
-        alert('❌ Error: ' + err.message);
-      }
-    }
-
-      } catch (err) {
-        console.error('❌ Fatal error:', err);
         alert('❌ Error: ' + err.message);
       }
     }

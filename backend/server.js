@@ -29,7 +29,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 console.log('✅ Supabase client initialized');
 
 // ─── MIDDLEWARE ───
-app.use(cors());
+app.use(cors({
+  origin: true, // Allow all origins (Vercel requires this for now)
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
 
 // Logging middleware

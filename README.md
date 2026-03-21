@@ -1,6 +1,6 @@
 # 📚 Student Feedback System
 
-A modern, interactive web application for collecting structured academic feedback using a notebook-themed interface. Built with **HTML5**, **CSS3**, **Vanilla JavaScript**, and **Supabase**.
+A modern, interactive web application for collecting structured academic feedback using a notebook-themed interface. Built with **HTML5**, **CSS3**, **JavaScript**, **Node.js/Express**, and **Supabase**.
 
 ---
 
@@ -16,26 +16,38 @@ A modern, interactive web application for collecting structured academic feedbac
 - **Success state screen** with celebration animation
 - **Fully responsive design** optimized for mobile and desktop
 
-### 🔐 Data Collection
+### 🔐 Data Collection & Security
 - **Student Information**: Name, ID, Email, Grade, Subject
 - **Ratings**: Overall experience, Teaching quality, Course materials
 - **Experience**: Mood, Enjoyed aspects (checkboxes)
 - **Feedback**: What you liked most, Improvements, Additional comments
 - **Metadata**: Automatic timestamp on submission
+- **Secure Backend**: All credentials kept server-side (not exposed to frontend)
 
 ### ✅ Smart Validation
+- **Client-side validation** for quick user feedback
+- **Server-side validation** for security
 - **Required field enforcement** (Name, Grade, Subject, Overall Rating, Feedback)
 - **Email format validation** when provided
 - **User-friendly error messages**
 - **No page reload** on validation failure
-- **Progress tracking** for better UX
 
 ### 🚀 Backend Integration
+- **Node.js/Express API server** for request handling
 - **Supabase PostgreSQL database** for secure data storage
 - **Row-Level Security (RLS)** policies
-- **Public insert access** for anonymous submissions
-- **Authenticated read access** for admin dashboards
-- **Automatic timestamps** for all submissions
+- **CORS support** for frontend communication
+- **Production-ready error handling**
+- **Comprehensive logging**
+
+### 📊 Admin Dashboard
+- **Real-time feedback viewer**
+- **Search by student name**
+- **Advanced filtering** (subject, grade, rating)
+- **Export to CSV**
+- **Admin authentication**
+- **Delete management**
+- **Statistics & analytics**
 
 ---
 
@@ -238,90 +250,269 @@ Edit `css/styles.css` (lines 8-20):
 
 ## 🌐 Deployment
 
-### Option 1: Netlify
+This project now includes a **Node.js/Express backend** for production deployment. See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for complete deployment instructions.
+
+### Quick Deployment (Vercel - Recommended)
+
+**1. Deploy Backend:**
 ```bash
-# Connect your GitHub repo to Netlify
-# Set environment variables in Netlify dashboard:
-SUPABASE_URL=your_url
-SUPABASE_ANON_KEY=your_key
+# Push to GitHub, then:
+# 1. Go to vercel.com
+# 2. Import repository
+# 3. Select 'backend' folder
+# 4. Add environment variables (SUPABASE_URL, SUPABASE_KEY)
+# 5. Deploy
 ```
 
-### Option 2: Vercel
-```bash
-# Deploy with Vercel CLI or GitHub integration
-vercel
-# Set environment variables in Vercel dashboard
+**2. Update Frontend:**
+```javascript
+// Edit js/config.js with your backend URL
+if (hostname === 'my-feedback-app.vercel.app') {
+  return 'https://my-feedback-backend.vercel.app/api';
+}
 ```
 
-### Option 3: GitHub Pages
+**3. Deploy Frontend:**
 ```bash
-# Push to GitHub and enable Pages
-# Note: Requires backend API for form submission (can't use GH Pages alone)
+# Same Vercel process for root directory
 ```
 
-### Option 4: Self-Hosted
-```bash
-# Deploy to your own server with Node.js/Python
-# Keep .env file with credentials secure
-# Use proper HTTPS/SSL certificates
-```
+### Deployment Options
+
+| Option | Best For | Cost | Setup Time |
+|--------|----------|------|------------|
+| **Vercel** | Full Stack | Free tier | 5 mins |
+| **Railway** | Full Stack | $5/mo | 10 mins |
+| **Heroku** | Full Stack | $7/mo | 10 mins |
+| **Docker** | Full Control | Varies | 20 mins |
+
+### Configuration
+
+Your app auto-detects the environment using `js/config.js`:
+
+| Environment | API Endpoint |
+|-------------|-------------|
+| Local Dev | `http://localhost:3000/api` |
+| Vercel | Automatically detected |
+| Custom Domain | Update config.js |
+
+### Security Features
+
+- ✅ Supabase credentials server-side only
+- ✅ Input validation on client and server
+- ✅ HTTPS enforced
+- ✅ CORS properly configured
+- ✅ Environment variables for secrets
+- ✅ Production error handling
+
+See [SECURITY.md](./SECURITY.md) for detailed security information.
 
 ---
 
-## 📈 Admin Dashboard (Future Phase)
+## 📊 Admin Dashboard
 
-To view submissions, create an admin page:
+View, search, and manage feedback submissions:
 
-```javascript
-const { data, error } = await supabase
-  .from('student_feedback')
-  .select('*')
-  .order('created_at', { ascending: false });
+1. Open `dashboard.html`
+2. Click "Admin Login" button
+3. Enter password (shown on modal)
+4. View all feedback in real-time
+5. Search by student name
+6. Export to CSV
+7. Delete submissions (admin only)
 
-// Calculate stats
-const avgRating = data.reduce((a, b) => a + b.overall_rating, 0) / data.length;
-const moodCounts = {};
-data.forEach(item => {
-  moodCounts[item.mood] = (moodCounts[item.mood] || 0) + 1;
-});
+**Default Password**: `admin123` (change in production!)
+
+---
+
+## 📈 API Endpoints
+
+The backend provides these REST endpoints:
+
+```
+POST   /api/feedback          - Submit new feedback
+GET    /api/feedback          - Get all feedback (with filters)
+GET    /api/feedback/stats    - Get analytics
+GET    /api/feedback/:id      - Get single feedback
+DELETE /api/feedback/:id      - Delete feedback (admin)
+GET    /api/health            - Health check
+```
+
+Full API docs: [backend/README.md](./backend/README.md)
+
+---
+
+## 🚀 Getting Started (Local Development)
+
+### 1. Clone & Install
+
+```bash
+# Frontend dependencies (none needed - it's static HTML/JS)
+# Backend dependencies
+cd backend
+npm install
+```
+
+### 2. Configure Environment
+
+```bash
+# Backend configuration
+cd backend
+cp .env.example .env
+
+# Edit .env with your Supabase credentials:
+# SUPABASE_URL=...
+# SUPABASE_KEY=...
+```
+
+### 3. Start Backend Server
+
+```bash
+cd backend
+npm start
+# Backend runs at http://localhost:3000
+```
+
+### 4. Open Frontend
+
+```bash
+# Open in browser:
+http://localhost:5500  (if using VS Code Live Server)
+# or
+file:///path/to/index.html
+```
+
+### 5. Test
+
+1. Submit a form entry
+2. Check backend logs in terminal
+3. View feedback in `dashboard.html`
+4. Verify in Supabase dashboard
+
+---
+
+## 🔌 Local Development Mode
+
+For auto-reloading backend during development:
+
+```bash
+cd backend
+npm run dev
+```
+
+Requires `nodemon` (already installed).
+
+---
+
+## 📁 Project Files Guide
+
+```
+student-feedback-system/
+│
+├── 📄 index.html              # Form submission page
+├── 📄 dashboard.html          # Admin feedback viewer
+├── 📄 test.html               # Testing page
+│
+├── 📁 css/
+│   └── styles.css             # All styling
+│
+├── 📁 js/
+│   ├── config.js              # Environment detection
+│   └── app.js                 # Form & API logic
+│
+├── 📁 backend/                # Node.js Express server
+│   ├── server.js              # Main API
+│   ├── package.json           # Dependencies
+│   ├── vercel.json            # Vercel config
+│   ├── .env                   # Secrets (not in git)
+│   ├── .env.example           # Template
+│   └── README.md              # Backend docs
+│
+├── 📁 supabase/
+│   └── schema.sql             # Database schema
+│
+├── 📖 QUICK_START.md          # 5-minute setup
+├── 📖 VERCEL_DEPLOYMENT.md    # Production deployment
+├── 📖 BACKEND_SETUP.md        # Backend guide
+├── 📖 DEPLOYMENT.md           # Config guide
+├── 📖 SECURITY.md             # Security guide
+└── 📖 README.md               # This file
 ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Form not submitting?
-1. Check browser console for errors (F12)
-2. Verify Supabase credentials in environment
-3. Check that RLS policy allows inserts
-4. Ensure email format is valid if provided
+### Frontend Issues
 
-### Styling looks broken?
-1. Clear browser cache (Ctrl+Shift+Delete)
-2. Verify `css/styles.css` is linked in `index.html`
-3. Check for CSS file path errors in browser network tab
+**"Cannot connect to backend"**
+- Ensure `npm start` is running in backend folder
+- Check `http://localhost:3000/api/health` in browser
+- Verify API_BASE_URL in js/config.js
 
-### Data not appearing in Supabase?
-1. Check that database table exists
-2. Verify credentials in `.env`
-3. Check Supabase dashboard > Auth > Policies
-4. Look for error messages in browser console
+**"Form validation fails"**
+- Fill all required fields
+- Check browser console (F12) for errors
+- Check backend logs in terminal
 
-### CORS errors?
-- Supabase should handle CORS by default
-- If issues persist, check project settings in Supabase
+**"Dashboard shows no feedback"**
+- Backend must be running
+- Data must exist in Supabase
+- Check network tab (F12) for API errors
+
+### Backend Issues
+
+**"Port 3000 already in use"**
+```bash
+# Use a different port
+PORT=3001 npm start
+# Then update config.js
+```
+
+**"Supabase connection error"**
+- Verify SUPABASE_URL in .env
+- Verify SUPABASE_KEY in .env
+- Check that credentials are correct
+
+**"npm install fails"**
+```bash
+# Clear cache and try again
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Database Issues
+
+**"Table not found"**
+- Run `supabase/schema.sql` in Supabase SQL editor
+- Check that table `student_feedback` exists
+
+**"RLS policy denies access"**
+- Check Supabase policies allow public insert
+- See `supabase/schema.sql` for correct policies
 
 ---
 
 ## 📚 Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | HTML5, CSS3, Vanilla JavaScript |
-| **Backend** | Supabase (PostgreSQL) |
-| **Auth** | Supabase Anonymous/Public |
-| **Hosting** | Any static host (Netlify, Vercel, etc.) |
-| **SDK** | @supabase/supabase-js v2 |
+| Component | Technology |
+|-----------|-----------|
+| **Frontend** | HTML5, CSS3, JavaScript |
+| **Backend** | Node.js, Express.js |
+| **Database** | Supabase (PostgreSQL) |
+| **Auth** | Environment variables, Basic auth |
+| **Hosting** | Vercel, Railway, Heroku, or self-hosted |
+| **APIs** | REST with JSON |
+
+---
+
+## 📖 Documentation
+
+- [QUICK_START.md](./QUICK_START.md) - 5-minute local setup
+- [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) - Deploy to production
+- [BACKEND_SETUP.md](./BACKEND_SETUP.md) - Backend configuration
+- [SECURITY.md](./SECURITY.md) - Security best practices
+- [backend/README.md](./backend/README.md) - API documentation
 
 ---
 
