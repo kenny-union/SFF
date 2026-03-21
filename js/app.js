@@ -3,8 +3,9 @@
 // ─────────────────────────────────────────────
 
 // ─── BACKEND API CONFIGURATION ───
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
-// Note: For production, update API_BASE_URL to your deployed backend URL
+// Change this URL when deploying backend to production
+const API_BASE_URL = 'http://localhost:3000/api';
+// For production: 'https://your-deployed-backend.com/api'
 
 console.log('🔧 Connecting to backend at:', API_BASE_URL);
 
