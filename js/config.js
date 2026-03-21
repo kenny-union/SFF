@@ -13,13 +13,13 @@
 
     // Production Vercel deployment
     if (hostname.includes('vercel.app')) {
-      // Update this with your actual Vercel backend URL
-      // Example: if frontend is 'my-app.vercel.app', backend might be 'my-backend.vercel.app'
-      if (hostname === 'my-feedback-app.vercel.app') {
-        return 'https://my-feedback-backend.vercel.app/api';
+      // Frontend: sff-three.vercel.app
+      // Backend: sff-backend.vercel.app
+      if (hostname === 'sff-three.vercel.app') {
+        return 'https://sff-backend.vercel.app/api';
       }
-      // Generic Vercel fallback - update this
-      return 'https://student-feedback-backend.vercel.app/api';
+      // Fallback
+      return 'https://sff-backend.vercel.app/api';
     }
 
     // Custom domain production
