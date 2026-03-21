@@ -559,37 +559,23 @@
 
   </div>
 
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <!-- Dashboard Logic -->
   <script>
-    const SUPABASE_URL = 'https://ubrjrofmafyuclrqifxa.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicmpyb2ZtYWZ5dWNscnFpZnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzA3OTYsImV4cCI6MjA4NzYwNjc5Nn0.R4Alsa_so0ITQpqv5eHYWCKdeU71MBYDsu_nvr3G6BQ';
+    const API_BASE_URL = 'http://localhost:3000/api';
+    // For production: 'https://your-deployed-backend.com/api'
 
-    console.log('📊 Dashboard initializing...');
+    console.log('📊 Dashboard initializing, connecting to:', API_BASE_URL);
 
-    // Initialize Supabase in global state
+    // Initialize state
     if (!window.appState) {
       window.appState = {};
     }
+    window.appState.apiUrl = API_BASE_URL;
 
     let allFeedback = [];
     let filteredFeedback = [];
 
-    // Initialize Supabase
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      try {
-        window.appState.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase initialized');
-      } catch (err) {
-        console.error('❌ Supabase init error:', err);
-      }
-    } else {
-      console.error('❌ Supabase SDK not loaded');
-    }
-
-    // Fetch feedback on load
+    // Fetch feedback on page load
     document.addEventListener('DOMContentLoaded', function() {
       console.log('✅ Page loaded');
       fetchFeedback();
@@ -598,34 +584,21 @@
     // ─── FETCH FEEDBACK ───
     async function fetchFeedback() {
       try {
-        console.log('🔄 Fetching feedback...');
+        console.log('🔄 Fetching feedback from backend...');
 
-        if (!window.appState.supabase) {
-          throw new Error('Supabase not initialized');
+        const response = await fetch(`${window.appState.apiUrl}/feedback?limit=1000`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch feedback`);
         }
 
-        const { data, error } = await window.appState.supabase
-          .from('student_feedback')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const result = await response.json();
 
-        if (error) {
-          console.error('❌ Fetch error:', error);
-          
-          let errorMsg = '❌ Error loading feedback';
-          if (error.code === 'PGRST116') {
-            errorMsg = '❌ Table not found. Create it in Supabase using schema.sql';
-          } else if (error.message?.includes('policy')) {
-            errorMsg = '❌ Permission denied. Check RLS policies.';
-          } else {
-            errorMsg = '❌ ' + (error.message || JSON.stringify(error));
-          }
-          
-          document.getElementById('loading').innerHTML = `<p style="color: var(--red);">${errorMsg}</p><p style="font-size: 0.8rem; margin-top: 1rem;">Check console (F12) for details</p>`;
-          return;
+        if (!result.success) {
+          throw new Error(result.message || 'Unknown error');
         }
 
-        allFeedback = data || [];
+        allFeedback = result.data || [];
         filteredFeedback = [...allFeedback];
         console.log(`✅ Loaded ${allFeedback.length} feedback records`);
 
@@ -638,8 +611,16 @@
         }
 
       } catch (err) {
-        console.error('❌ Fatal error:', err);
-        document.getElementById('loading').innerHTML = `<p style="color: var(--red);">❌ ${err.message}</p><p style="font-size: 0.8rem; margin-top: 1rem;">Check console (F12)</p>`;
+        console.error('❌ Error fetching feedback:', err);
+        let errorMsg = '❌ Error loading feedback';
+        
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+          errorMsg = '❌ Cannot connect to backend server. Make sure it\'s running at ' + window.appState.apiUrl;
+        } else {
+          errorMsg = '❌ ' + err.message;
+        }
+        
+        document.getElementById('loading').innerHTML = `<p style="color: var(--red);">${errorMsg}</p><p style="font-size: 0.8rem; margin-top: 1rem;">Check console (F12) for details</p>`;
       }
     }
 
@@ -892,14 +873,16 @@
 
       try {
         console.log('🗑️ Deleting feedback:', id);
-        const { error } = await window.appState.supabase
-          .from('student_feedback')
-          .delete()
-          .eq('id', id);
+        
+        const response = await fetch(`${window.appState.apiUrl}/feedback/${id}`, {
+          method: 'DELETE'
+        });
 
-        if (error) {
-          console.error('❌ Delete error:', error);
-          alert('❌ Error deleting feedback: ' + error.message);
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error('❌ Delete error:', result);
+          alert('❌ Error deleting feedback: ' + (result.message || 'Unknown error'));
           return;
         }
 
@@ -911,6 +894,12 @@
         filteredFeedback = filteredFeedback.filter(fb => fb.id !== id);
         updateStats();
         renderFeedback();
+
+      } catch (err) {
+        console.error('❌ Delete error:', err);
+        alert('❌ Error: ' + err.message);
+      }
+    }
 
       } catch (err) {
         console.error('❌ Fatal error:', err);

@@ -2,27 +2,17 @@
 // STUDENT FEEDBACK FORM - App Logic (CLEAN)
 // ─────────────────────────────────────────────
 
-// ─── SUPABASE INITIALIZATION ───
-const SUPABASE_URL = 'https://ubrjrofmafyuclrqifxa.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicmpyb2ZtYWZ5dWNscnFpZnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzA3OTYsImV4cCI6MjA4NzYwNjc5Nn0.R4Alsa_so0ITQpqv5eHYWCKdeU71MBYDsu_nvr3G6BQ';
+// ─── BACKEND API CONFIGURATION ───
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
+// Note: For production, update API_BASE_URL to your deployed backend URL
 
-console.log('🔧 Initializing Supabase client...');
+console.log('🔧 Connecting to backend at:', API_BASE_URL);
 
-// Store client in global object to avoid redeclaration
+// Store config in global object
 if (!window.appState) {
   window.appState = {};
 }
-
-if (window.supabase && typeof window.supabase.createClient === 'function') {
-  try {
-    window.appState.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✅ Supabase initialized');
-  } catch (err) {
-    console.error('❌ Supabase init error:', err);
-  }
-} else {
-  console.error('❌ Supabase SDK not loaded - check HTML <script> tag');
-}
+window.appState.apiUrl = API_BASE_URL;
 
 // ─── PROGRESS BAR ───
 function updateProgress() {
@@ -160,46 +150,44 @@ document.getElementById('feedbackForm').addEventListener('submit', async functio
   submitBtn.disabled = true;
 
   try {
-    // Check Supabase
-    if (!window.appState.supabase) {
-      throw new Error('Supabase client not initialized');
-    }
-
     // Collect data
     const formData = collectFormData();
     console.log('📋 Data collected:', formData);
 
-    // Insert
-    console.log('🔄 Inserting into Supabase...');
-    const { data, error } = await window.appState.supabase
-      .from('student_feedback')
-      .insert([formData])
-      .select();
+    // Send to backend API
+    console.log('🔄 Sending to backend...');
+    const response = await fetch(`${window.appState.apiUrl}/feedback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
 
-    if (error) {
-      console.error('❌ Supabase error:', error);
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('❌ Backend error:', result);
       
-      // Helpful error messages
-      let msg = error.message || JSON.stringify(error);
-      if (error.code === 'PGRST116') {
-        msg = 'Table not found. Run schema.sql in Supabase SQL Editor.';
-      } else if (msg.includes('policy')) {
-        msg = 'Permission denied. Check RLS policies.';
+      // Handle validation errors
+      if (result.errors && Array.isArray(result.errors)) {
+        alert('❌ Please fix these errors:\n\n' + result.errors.join('\n'));
+      } else {
+        alert('❌ Error: ' + (result.message || 'Failed to submit feedback'));
       }
       
-      alert('❌ Error: ' + msg);
       submitBtn.innerHTML = originalText;
       submitBtn.disabled = false;
       return;
     }
 
-    console.log('✅ Success! Data:', data);
+    console.log('✅ Success! Response:', result);
     alert('✅ Thank you! Feedback submitted successfully.');
     showSuccessScreen();
 
   } catch (err) {
     console.error('❌ Error:', err);
-    alert('❌ ' + err.message);
+    alert('❌ ' + (err.message || 'Failed to submit feedback. Make sure the backend server is running!'));
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
   }
